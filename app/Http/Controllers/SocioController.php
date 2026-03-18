@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Socio;
 use Illuminate\Http\Request;
 
+
 class SocioController extends Controller
 {
 
-    public function index()
+
+    public function index(Request $request)
     {
-        $socios = Socio::where('club_id', auth()->user()->club_id)->get();
+        $socios = Socio::where('club_id', $request->user()->club_id)->get();
 
     return view('socios.index', compact('socios'));
     }
@@ -18,21 +20,22 @@ class SocioController extends Controller
 
     public function create()
     {
-        //
+         return view('socios.create');
     }
 
 
     public function store(Request $request)
     {
         Socio::create([
-        'club_id' => auth()->user()->club_id,
+        'club_id' => $request->user()->club_id,
         'nombre' => $request->nombre,
         'email' => $request->email,
         'telefono' => $request->telefono,
         'estado' => 'activo',
     ]);
-
+ dd($request->user());
     return redirect()->route('socios.index');
+
     }
 
 

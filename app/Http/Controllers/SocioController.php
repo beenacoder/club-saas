@@ -33,7 +33,7 @@ class SocioController extends Controller
         'telefono' => $request->telefono,
         'estado' => 'activo',
     ]);
- dd($request->user());
+
     return redirect()->route('socios.index');
 
     }

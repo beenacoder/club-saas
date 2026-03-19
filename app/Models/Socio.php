@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Actividad;
 
 class Socio extends Model
 {
@@ -19,4 +20,11 @@ class Socio extends Model
         'telefono',
         'estado',
     ];
+
+    public function actividades()
+    {
+        return $this->belongsToMany(Actividad::class, 'socio_actividad');
+    }
+
+
 }

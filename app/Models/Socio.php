@@ -26,5 +26,13 @@ class Socio extends Model
         return $this->belongsToMany(Actividad::class, 'socio_actividad');
     }
 
+    public function cuotas()
+    {
+        return $this->hasMany(SocioCuota::class);
+    }
 
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class);
+    }
 }

@@ -19,5 +19,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('socios', SocioController::class)->middleware('auth');
+Route::get('/socios/{id}', [SocioController::class, 'show']);
+
+Route::post('/socios/{socio}/pagar', [SocioController::class, 'pagar'])
+    ->name('socios.pagar');
 
 require __DIR__.'/auth.php';

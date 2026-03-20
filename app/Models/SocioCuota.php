@@ -17,6 +17,20 @@ class SocioCuota extends Model
         'estado',
     ];
 
+    public function pagar()
+    {
+        $this->estado = 'pagado';
+        $this->fecha_pago = now();
+        $this->save();
+    }
+
+    public function pagos()
+    {
+        return $this->belongsToMany(Pago::class, 'pago_socio_cuota')
+            ->withPivot('monto')
+            ->withTimestamps();
+    }
+
     public function socio()
     {
         return $this->belongsTo(Socio::class);

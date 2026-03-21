@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PortalSocioController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -27,5 +28,7 @@ Route::post('/socios/{socio}/pagar', [SocioController::class, 'pagar'])
 
 Route::get('/portal/{token}', [PortalSocioController::class, 'show'])->name('portal.socio');
 Route::post('/portal/{token}/pagar/cuota/{cuota}', [PortalSocioController::class, 'pagarCuota'])->name('portal.pagar.cuota');
+
+Route::post('/webhook/mercadopago', [PagoController::class, 'webhook'])->name('mercadopago.webhook');
 
 require __DIR__.'/auth.php';

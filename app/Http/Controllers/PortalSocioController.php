@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Socio;
+use MercadoPago\Client\Preference\PreferenceClient;
+use MercadoPago\MercadoPagoConfig;
 
 use Illuminate\Http\Request;
 
@@ -25,6 +27,7 @@ class PortalSocioController extends Controller
 
     public function pagarCuota($token, $cuotaId)
     {
+        MercadoPagoConfig::setAccessToken(config('env.MP_ACCESS_TOKEN'));
         $socio = Socio::where('token', $token)->firstOrFail();
 
         $cuota = \App\Models\SocioCuota::where('id', $cuotaId)
@@ -37,8 +40,24 @@ class PortalSocioController extends Controller
             return back()->with('error', 'La cuota ya está pagada');
         }
 
-        \App\Models\Pago::pagarCuotaEspecifica($socio->id, $cuotaId);
+        $client = new PreferenceClient();
 
-        return back()->with('success', 'Cuota pagada correctamente');
+        $preference = $client->create([
+            "items" => [
+                [
+                    "title" => "Cuota " . $cuota->fecha,
+                    "quantity" => 1,
+                    "unit_price" => (float)$saldo
+                ]
+            ],
+            "back_urls" => [
+                "success" => route('portal.success'),
+                "failure" => route('portal.failure'),
+            ],
+            "notification_url" => route('mercadopago.webhook'),
+            "external_reference" => $cuota->id
+        ]);
+
+        return redirect($preference->init_point);
     }
 }

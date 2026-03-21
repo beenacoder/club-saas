@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PortalSocioController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocioController;
@@ -23,5 +24,8 @@ Route::get('/socios/{id}', [SocioController::class, 'show']);
 
 Route::post('/socios/{socio}/pagar', [SocioController::class, 'pagar'])
     ->name('socios.pagar');
+
+Route::get('/portal/{token}', [PortalSocioController::class, 'show'])->name('portal.socio');
+Route::post('/portal/{token}/pagar/cuota/{cuota}', [PortalSocioController::class, 'pagarCuota'])->name('portal.pagar.cuota');
 
 require __DIR__.'/auth.php';

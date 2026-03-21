@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Actividad;
+use Illuminate\Support\Str;
 
 class Socio extends Model
 {
@@ -34,5 +35,12 @@ class Socio extends Model
     public function pagos()
     {
         return $this->hasMany(Pago::class);
+    }
+
+    //Cada socio tiene su link único
+    protected static function booted() {
+        static::creating(function ($socio) {
+            $socio->token = Str::uuid();
+        });
     }
 }

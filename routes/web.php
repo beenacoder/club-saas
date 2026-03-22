@@ -31,4 +31,16 @@ Route::post('/portal/{token}/pagar/cuota/{cuota}', [PortalSocioController::class
 
 Route::post('/webhook/mercadopago', [PagoController::class, 'webhook'])->name('mercadopago.webhook');
 
+Route::get('/portal/success', function () {
+    return "Pago exitoso (esperando confirmación...)";
+})->name('portal.success');
+
+Route::get('/portal/failure', function () {
+    return "Pago fallido";
+})->name('portal.failure');
+
+Route::get('/portal/pending', function () {
+    return "Pago pendiente";
+})->name('portal.pending');
+
 require __DIR__.'/auth.php';

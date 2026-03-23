@@ -47,10 +47,17 @@ class SocioController extends Controller
             abort(403);
         }
 
-        // cargar relaciones
+        //cargar relaciones
+        // $socio->load([
+        //     'cuotas',
+        //     'pagos'
+        // ]);
+
         $socio->load([
             'cuotas',
-            'pagos'
+            'cuotas.pagos' => function ($query) {
+                $query->select('pagos.*');
+            }
         ]);
 
         // calcular deuda

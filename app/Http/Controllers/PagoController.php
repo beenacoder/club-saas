@@ -65,25 +65,106 @@ class PagoController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $cuotaId = $payment->external_reference;
+        $cuota = SocioCuota::find($payment->external_reference);
 
-        $cuota = \App\Models\SocioCuota::find($cuotaId);
-
-        if (!$cuota) {
-            Log::info('Cuota no encontrada');
+        if (!$cuota || $cuota->estado === 'pagado') {
             return response()->json(['ok' => true]);
         }
 
-        if ($cuota->estado === 'pagado') {
-            return response()->json(['ok' => true]);
-        }
+        $saldo = $cuota->monto - $cuota->monto_pagado;
 
-        \App\Models\Pago::pagarCuotaEspecifica($cuota->socio_id, $cuota->id);
+        // 🔴 REGLA DE NEGOCIO: ONLINE = TOTAL
+        Pago::aplicarPago($cuota, $saldo, 'mp', $payment->id);
+
+        if ($saldo > 0) {
+
+            $pago = Pago::create([
+                'club_id' => $cuota->socio->club_id,
+                'socio_id' => $cuota->socio_id,
+                'monto' => $payment->transaction_amount,
+                'fecha' => now(),
+                'tipo' => 'mp',
+                'mp_payment_id' => $payment->id
+            ]);
+
+            // relación pivot (como ya usás)
+            $pago->cuotas()->attach($cuota->id, [
+                'monto' => $payment->transaction_amount
+            ]);
+
+            // actualizar acumulado
+            $cuota->monto_pagado += $payment->transaction_amount;
+
+            if ($cuota->monto_pagado >= $cuota->monto) {
+                $cuota->estado = 'pagado';
+            }
+
+            $cuota->save();
+
+            Log::info('Cuota pagada OK (MP)');
+        }
 
         Log::info('Cuota pagada OK');
 
         return response()->json(['ok' => true]);
     }
+
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'cuota_id' => 'required|exists:socio_cuotas,id',
+    //         'monto' => 'required|numeric|min:1'
+    //     ]);
+
+    //     $cuota = SocioCuota::with('pagos')->findOrFail($request->cuota_id);
+
+    //     // calcular saldo real
+    //     $pagado = $cuota->pagos->sum('monto');
+    //     $saldo = $cuota->monto - $pagado;
+
+    //     // 🔴 VALIDACIONES CLAVE
+    //     if ($saldo <= 0) {
+    //         return back()->with('error', 'La cuota ya está pagada');
+    //     }
+
+    //     if ($request->monto > $saldo) {
+    //         return back()->with('error', 'No puede pagar más que el saldo');
+    //     }
+
+    //     $saldo = $cuota->monto - $cuota->monto_pagado;
+
+    //     if ($request->monto > $saldo) {
+    //         return back()->with('error', 'No puede pagar más que el saldo');
+    //     }
+
+    //     $pago = Pago::create([
+    //         'club_id' => $cuota->socio->club_id,
+    //         'socio_id' => $cuota->socio_id,
+    //         'monto' => $request->monto,
+    //         'fecha' => now(),
+    //         'tipo' => 'manual'
+    //     ]);
+
+    //     $pago->cuotas()->attach($cuota->id, [
+    //         'monto' => $request->monto
+    //     ]);
+
+    //     $cuota->monto_pagado += $request->monto;
+
+    //     if ($cuota->monto_pagado >= $cuota->monto) {
+    //         $cuota->estado = 'pagado';
+    //     }
+
+    //     $cuota->save();
+
+    //     // actualizar estado
+    //     if ($request->monto == $saldo) {
+    //         $cuota->estado = 'pagado';
+    //         $cuota->save();
+    //     }
+
+    //     return back()->with('success', 'Pago registrado');
+    // }
 
     public function store(Request $request)
     {
@@ -92,33 +173,9 @@ class PagoController extends Controller
             'monto' => 'required|numeric|min:1'
         ]);
 
-        $cuota = SocioCuota::with('pagos')->findOrFail($request->cuota_id);
+        $cuota = SocioCuota::findOrFail($request->cuota_id);
 
-        // calcular saldo real
-        $pagado = $cuota->pagos->sum('monto');
-        $saldo = $cuota->monto - $pagado;
-
-        // 🔴 VALIDACIONES CLAVE
-        if ($saldo <= 0) {
-            return back()->with('error', 'La cuota ya está pagada');
-        }
-
-        if ($request->monto > $saldo) {
-            return back()->with('error', 'No puede pagar más que el saldo');
-        }
-
-        // 💰 registrar pago
-        Pago::create([
-            'cuota_id' => $cuota->id,
-            'monto' => $request->monto,
-            'tipo' => 'manual' // 🔥 importante
-        ]);
-
-        // actualizar estado
-        if ($request->monto == $saldo) {
-            $cuota->estado = 'pagado';
-            $cuota->save();
-        }
+        Pago::aplicarPago($cuota, $request->monto, 'manual');
 
         return back()->with('success', 'Pago registrado');
     }

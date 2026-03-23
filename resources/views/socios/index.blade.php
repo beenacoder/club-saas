@@ -1,18 +1,3 @@
-{{-- @extends('layouts.app')
-
-@section('content')
-    <h1>Socios</h1>
-    <a href="{{ route('socios.create') }}">Nuevo Socio</a>
-
-    <ul>
-        @foreach ($socios as $socio)
-            <li>{{ $socio->nombre }} - {{ $socio->email }}</li>
-            <a href="/socios/{{ $socio->id }}">Ver</a>
-        @endforeach
-    </ul>
-@endsection --}}
-
-
 @extends('layouts.app')
 
 @section('content')

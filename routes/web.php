@@ -31,6 +31,8 @@ Route::post('/portal/{token}/pagar/cuota/{cuota}', [PortalSocioController::class
 
 Route::post('/webhook/mercadopago', [PagoController::class, 'webhook'])->name('mercadopago.webhook');
 
+Route::post('/pagos', [PagoController::class, 'store']);
+
 Route::get('/portal/success', function () {
     return "Pago exitoso (esperando confirmación...)";
 })->name('portal.success');

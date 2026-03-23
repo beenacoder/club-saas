@@ -11,34 +11,6 @@ use MercadoPago\MercadoPagoConfig;
 
 class PagoController extends Controller
 {
-    // public function webhook(Request $request)
-    // {
-    //     $paymentId = $request->input('data.id');
-
-    //     if (!$paymentId) return response()->json(['ok' => true]);
-
-    //     $client = new PaymentClient();
-    //     $payment = $client->get($paymentId);
-
-    //     if ($payment->status !== 'approved') {
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     $cuotaId = $payment->external_reference;
-
-    //     $cuota = SocioCuota::find($cuotaId);
-
-    //     if (!$cuota) return response()->json(['ok' => true]);
-
-    //     // evitar duplicados
-    //     if ($cuota->estado === 'pagado') {
-    //         return response()->json(['ok' => true]);
-    //     }
-
-    //     Pago::pagarCuotaEspecifica($cuota->socio_id, $cuota->id);
-    //     return response()->json(['ok' => true]);
-    // }
-
     public function webhook(Request $request)
     {
         Log::info('Webhook completo', $request->all());
@@ -111,5 +83,43 @@ class PagoController extends Controller
         Log::info('Cuota pagada OK');
 
         return response()->json(['ok' => true]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'cuota_id' => 'required|exists:socio_cuotas,id',
+            'monto' => 'required|numeric|min:1'
+        ]);
+
+        $cuota = SocioCuota::with('pagos')->findOrFail($request->cuota_id);
+
+        // calcular saldo real
+        $pagado = $cuota->pagos->sum('monto');
+        $saldo = $cuota->monto - $pagado;
+
+        // 🔴 VALIDACIONES CLAVE
+        if ($saldo <= 0) {
+            return back()->with('error', 'La cuota ya está pagada');
+        }
+
+        if ($request->monto > $saldo) {
+            return back()->with('error', 'No puede pagar más que el saldo');
+        }
+
+        // 💰 registrar pago
+        Pago::create([
+            'cuota_id' => $cuota->id,
+            'monto' => $request->monto,
+            'tipo' => 'manual' // 🔥 importante
+        ]);
+
+        // actualizar estado
+        if ($request->monto == $saldo) {
+            $cuota->estado = 'pagado';
+            $cuota->save();
+        }
+
+        return back()->with('success', 'Pago registrado');
     }
 }

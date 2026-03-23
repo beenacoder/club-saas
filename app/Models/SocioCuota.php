@@ -45,4 +45,8 @@ class SocioCuota extends Model
     {
         return $this->belongsTo(Club::class);
     }
+
+    // public function pagos() {
+    //     return $this->hasMany(Pago::class, 'cuota_id');
+    // }
 }

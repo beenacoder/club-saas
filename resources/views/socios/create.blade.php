@@ -49,7 +49,7 @@
                         Nombre
                     </label>
 
-                    <x-ui.input type="text" name="nombre" value="{{ old('nombre') }}" required />
+                    <x-text-input type="text" name="nombre" value="{{ old('nombre') }}" required />
                 </div>
 
                 <!-- Email -->
@@ -58,7 +58,7 @@
                         Email
                     </label>
 
-                    <x-ui.input type="email" name="email" value="{{ old('email') }}" required />
+                    <x-text-input type="email" name="email" value="{{ old('email') }}" required />
                 </div>
 
                 <!-- Teléfono -->
@@ -67,7 +67,7 @@
                         Teléfono
                     </label>
 
-                    <x-ui.input type="text" name="telefono" value="{{ old('telefono') }}" />
+                    <x-text-input type="text" name="telefono" value="{{ old('telefono') }}" />
                 </div>
 
                 <!-- Actividades -->

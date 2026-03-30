@@ -25,18 +25,21 @@ class DemoSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'clubdemo@gmail.com',
             'password' => Hash::make('12345678'),
-            'club_id' => $club->id
+            'club_id' => $club->id,
+            'role' => 'admin',
         ]);
 
         // 🔥 ACTIVIDADES
         $futbol = Actividad::create([
             'club_id' => $club->id,
-            'nombre' => 'Futbol'
+            'nombre' => 'Futbol',
+            'slug' => 'futbol'
         ]);
 
         $gym = Actividad::create([
             'club_id' => $club->id,
-            'nombre' => 'Gimnasio'
+            'nombre' => 'Gimnasio',
+            'slug' => 'gimnasio'
         ]);
 
         // 🔥 SOCIOS

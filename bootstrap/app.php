@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook/mercadopago',
         ]);
     })
+    ->withMiddleware(function ($middleware) {
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

@@ -16,6 +16,7 @@ $variants = [
     'success' => 'bg-green-600 text-white hover:bg-green-700',
     'danger' => 'bg-red-600 text-white hover:bg-red-700',
     'secondary' => 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+    'warning' => 'bg-yellow-500 text-gray-700 hover:bg-yellow-600',
 ];
 @endphp
 

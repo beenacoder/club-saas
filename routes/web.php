@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PortalSocioController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocioController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -44,5 +46,12 @@ Route::get('/portal/failure', function () {
 Route::get('/portal/pending', function () {
     return "Pago pendiente";
 })->name('portal.pending');
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('users', UserController::class);
+});
+
+Route::resource('actividades', ActividadController::class)
+    ->middleware('auth');
 
 require __DIR__.'/auth.php';

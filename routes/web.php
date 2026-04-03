@@ -54,4 +54,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::resource('actividades', ActividadController::class)
     ->middleware('auth');
 
-require __DIR__.'/auth.php';
+Route::get('/actividades/{actividad}/dashboard', [ActividadController::class, 'dashboard'])->middleware('auth');
+
+require __DIR__ . '/auth.php';

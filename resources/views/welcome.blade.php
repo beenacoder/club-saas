@@ -51,7 +51,7 @@
 
                 <p class="mt-4 text-gray-500 text-lg">
                     Controlá socios, cuotas y pagos desde un solo lugar.
-                    Sin planillas, sin complicaciones.
+                    Sin planillas, sin complicaciones.(Viene desde Laragon)
                 </p>
 
                 <div class="mt-8 flex justify-center gap-4">

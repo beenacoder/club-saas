@@ -14,7 +14,7 @@
             </div>
 
             <a href="{{ route('actividades.create') }}"
-               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                 Nueva actividad
             </a>
         </div>
@@ -36,13 +36,23 @@
 
                     <div class="flex gap-2">
 
-                        <a href="{{ route('actividades.show', $actividad) }}"
-                           class="text-sm text-green-600 hover:underline">
+                        {{-- <a href="{{ route('actividades.show', $actividad) }}"
+                            class="text-sm text-green-600 hover:underline">
                             Ver
+                        </a> --}}
+
+                        <a href="{{ url('/actividades/' . $actividad->slug . '/dashboard') }}"
+                            class="text-green-600 text-sm hover:underline">
+                            Ver dashboard →
+                        </a>
+
+                        <a href="{{ route('actividades.cuotas.index', $actividad) }}"
+                            class="text-sm text-blue-600 hover:underline">
+                            Ver cuotas
                         </a>
 
                         <a href="{{ route('actividades.edit', $actividad) }}"
-                           class="text-sm text-gray-600 hover:underline">
+                            class="text-sm text-gray-600 hover:underline">
                             Editar
                         </a>
 

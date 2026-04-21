@@ -12,6 +12,7 @@ class ActividadController extends Controller
         $actividades = Actividad::where('club_id', $request->user()->club_id)->get();
 
         return view('actividades.index', compact('actividades'));
+
     }
 
     public function create()
@@ -80,4 +81,23 @@ class ActividadController extends Controller
             abort(403);
         }
     }
+
+    public function dashboard(Actividad $actividad, Request $request)
+{
+    $this->authorizeActividad($actividad, $request);
+
+    // 📊 métricas
+    $cantidadSocios = $actividad->socios()->count();
+
+    $cantidadCuotas = $actividad->cuotas()->count();
+
+    $totalRecaudado = $actividad->cuotas()->sum('monto');
+
+    return view('actividades.dashboard', compact(
+        'actividad',
+        'cantidadSocios',
+        'cantidadCuotas',
+        'totalRecaudado'
+    ));
+}
 }

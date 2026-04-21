@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class Actividad extends Model
 {
@@ -19,7 +20,15 @@ class Actividad extends Model
         parent::boot();
 
         static::creating(function ($actividad) {
-            $actividad->slug = Str::slug($actividad->nombre);
+
+            if (empty($actividad->slug)) {
+                $actividad->slug = Str::slug($actividad->nombre);
+            }
+
+            // 🔥 CLAVE
+            if (!$actividad->club_id && auth()->check()) {
+                $actividad->club_id = auth()->user()->club_id;
+            }
         });
 
         static::updating(function ($actividad) {
@@ -49,4 +58,11 @@ class Actividad extends Model
     {
         return 'slug';
     }
+
+    // public function resolveRouteBinding($value, $field = null)
+    // {
+    //     return $this->where('slug', $value)
+    //         ->where('club_id', auth()->user()->club_id)
+    //         ->firstOrFail();
+    // }
 }

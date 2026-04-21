@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActividadController;
+use App\Http\Controllers\CuotaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PortalSocioController;
 use App\Http\Controllers\ProfileController;
@@ -23,7 +24,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('socios', SocioController::class)->middleware('auth');
-Route::get('/socios/{id}', [SocioController::class, 'show']);
+// Route::get('/socios/{id}', [SocioController::class, 'show']);
 
 Route::post('/socios/{socio}/pagar', [SocioController::class, 'pagar'])
     ->name('socios.pagar');
@@ -51,9 +52,23 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class);
 });
 
+// Route::resource('actividades', ActividadController::class)
+//     ->middleware('auth');
+
 Route::resource('actividades', ActividadController::class)
+    ->parameters([
+        'actividades' => 'actividad'
+    ])
     ->middleware('auth');
 
 Route::get('/actividades/{actividad}/dashboard', [ActividadController::class, 'dashboard'])->middleware('auth');
+
+// Route::middleware('auth')->group(function () {
+//     Route::resource('actividades.cuotas', CuotaController::class);
+// });
+
+Route::middleware('auth')->group(function () {
+    Route::resource('actividades.cuotas', \App\Http\Controllers\CuotaController::class);
+});
 
 require __DIR__ . '/auth.php';

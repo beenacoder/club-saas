@@ -25,6 +25,7 @@
         <x-ui.card>
 
             <h2 class="text-lg font-semibold mb-4">Cuotas</h2>
+            @error('monto')<p class="mb-4 text-sm text-red-700" role="alert">{{ $message }}</p>@enderror
 
             <table class="w-full text-left">
                 <thead class="border-b">

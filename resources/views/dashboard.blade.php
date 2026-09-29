@@ -73,11 +73,11 @@
                         <div class="flex flex-col gap-3">
 
                             <x-ui.button variant="primary">
-                                Nuevo socio
+                                <a href="/socios/create">Nuevo Socio</a>
                             </x-ui.button>
 
                             <x-ui.button variant="success">
-                                Registrar pago
+                                <a href="/socios">Registrar Pago de Socio</a>
                             </x-ui.button>
 
                             <x-ui.button variant="secondary">

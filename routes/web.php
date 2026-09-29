@@ -26,15 +26,12 @@ Route::middleware('auth')->group(function () {
 Route::resource('socios', SocioController::class)->middleware('auth');
 // Route::get('/socios/{id}', [SocioController::class, 'show']);
 
-Route::post('/socios/{socio}/pagar', [SocioController::class, 'pagar'])
-    ->name('socios.pagar');
-
 Route::get('/portal/{token}', [PortalSocioController::class, 'show'])->name('portal.socio');
 Route::post('/portal/{token}/pagar/cuota/{cuota}', [PortalSocioController::class, 'pagarCuota'])->name('portal.pagar.cuota');
 
 Route::post('/webhook/mercadopago', [PagoController::class, 'webhook'])->name('mercadopago.webhook');
 
-Route::post('/pagos', [PagoController::class, 'store']);
+Route::post('/pagos', [PagoController::class, 'store'])->middleware('auth');
 
 Route::get('/portal/success', function () {
     return "Pago exitoso (esperando confirmación...)";

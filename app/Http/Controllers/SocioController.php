@@ -85,25 +85,6 @@ class SocioController extends Controller
         return view('socios.show', compact('socio', 'deuda', 'cuotas'));
     }
 
-    public function pagar(Request $request, Socio $socio)
-    {
-        // seguridad
-        if ($socio->club_id !== $request->user()->club_id) {
-            abort(403);
-        }
-
-        $request->validate([
-            'monto' => 'required|numeric|min:1'
-        ]);
-
-        \App\Models\Pago::cobrar($socio->id, $request->monto);
-
-        return redirect()
-            ->route('socios.show', $socio->id)
-            ->with('success', 'Pago registrado correctamente');
-    }
-
-
     public function edit(Socio $socio)
     {
         //

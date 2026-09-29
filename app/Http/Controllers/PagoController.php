@@ -9,6 +9,7 @@ use MercadoPago\Client\Payment\PaymentClient;
 use Illuminate\Support\Facades\Log;
 use MercadoPago\MercadoPagoConfig;
 use App\Services\PagoService;
+use Illuminate\Validation\ValidationException;
 
 class PagoController extends Controller
 {
@@ -87,14 +88,18 @@ class PagoController extends Controller
 
     public function store(Request $request, PagoService $pagoService)
     {
-        $request->validate([
-            'cuota_id' => 'required|exists:socio_cuotas,id',
+        $validated = $request->validate([
+            'cuota_id' => 'required|integer',
             'monto' => 'required|numeric|min:1'
         ]);
 
-        $cuota = SocioCuota::findOrFail($request->cuota_id);
+        $cuota = SocioCuota::where('club_id', $request->user()->club_id)->findOrFail($validated['cuota_id']);
+        $saldo = $cuota->monto - $cuota->monto_pagado;
+        if ($validated['monto'] > $saldo) {
+            throw ValidationException::withMessages(['monto' => 'El monto supera el saldo pendiente de la cuota.']);
+        }
 
-        $pagoService->aplicarPago($cuota, $request->monto, 'manual');
+        $pagoService->aplicarPago($cuota, $validated['monto'], 'manual');
 
         return back()->with('success', 'Pago registrado');
     }

@@ -22,7 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'club_id', // 🔥 AGREGAR ESTO
+        'club_id', //Multitenant
+        'role',
     ];
 
     /**
@@ -56,5 +57,16 @@ class User extends Authenticatable
     public function socios()
     {
         return $this->hasMany(Socio::class, 'club_id', 'club_id');
+    }
+
+    // 🔐 helpers
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isStaff()
+    {
+        return $this->role === 'staff';
     }
 }

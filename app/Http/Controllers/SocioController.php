@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Socio;
+use App\Services\CuotaService;
+use App\Models\Actividad;
 use Illuminate\Http\Request;
+
 
 
 class SocioController extends Controller
@@ -18,21 +21,38 @@ class SocioController extends Controller
     }
 
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('socios.create');
+        $actividades = Actividad::where('club_id', $request->user()->club_id)->get();
+
+        return view('socios.create', compact('actividades'));
     }
 
 
-    public function store(Request $request)
+    public function store(Request $request, CuotaService $cuotaService)
     {
-        Socio::create([
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email',
+            'telefono' => 'nullable|string',
+            'actividades' => 'nullable|array',
+            'actividades.*' => 'exists:actividades,id'
+        ]);
+
+        // 🔥 CREAR SOCIO
+        $socio = Socio::create([
             'club_id' => $request->user()->club_id,
             'nombre' => $request->nombre,
             'email' => $request->email,
             'telefono' => $request->telefono,
             'estado' => 'activo',
         ]);
+
+        // 🔥 ASIGNAR ACTIVIDADES
+        $socio->actividades()->sync($request->actividades ?? []);
+
+        // 🔥 GENERAR CUOTAS
+        $cuotaService->generarParaSocio($socio);
 
         return redirect()->route('socios.index');
     }
@@ -47,10 +67,11 @@ class SocioController extends Controller
             abort(403);
         }
 
-        // cargar relaciones
         $socio->load([
             'cuotas',
-            'pagos'
+            'cuotas.pagos' => function ($query) {
+                $query->select('pagos.*');
+            }
         ]);
 
         // calcular deuda
@@ -63,25 +84,6 @@ class SocioController extends Controller
 
         return view('socios.show', compact('socio', 'deuda', 'cuotas'));
     }
-
-    public function pagar(Request $request, Socio $socio)
-    {
-        // seguridad
-        if ($socio->club_id !== $request->user()->club_id) {
-            abort(403);
-        }
-
-        $request->validate([
-            'monto' => 'required|numeric|min:1'
-        ]);
-
-        \App\Models\Pago::cobrar($socio->id, $request->monto);
-
-        return redirect()
-            ->route('socios.show', $socio->id)
-            ->with('success', 'Pago registrado correctamente');
-    }
-
 
     public function edit(Socio $socio)
     {
